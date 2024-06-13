@@ -1,0 +1,33 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+AddRelTag("async", $lineStyle = DashedLine())
+
+title "DatingApp"
+
+Person(client, "DatingApp.Client", "DatingApp User")
+
+System_Ext(collector, "OTEL", "OpenTelemetry Collector")
+
+System_Ext(zipkin, "Zipkin", "Zipkin traces")
+
+System_Boundary(digital_wallet, "DatingApp System") {
+    Container(spa, "SPA", "Angular 16", "DatingApp Web App")
+    Container(datingapp, "DatingApp", ".NET 7", "Responsible for the core functionality")
+    Container(email_microservice, "Email microservice", ".NET 7", "Responsible for sending and validating emails")
+
+    ContainerDb(datingapp_db,"DatingApp DB","SQLite")
+    ContainerDb(email_microservice_db,"Email microservice DB","Redis")
+
+    Rel(client, spa, "Uses", "HTTPS")
+    Rel(spa, datingapp, "Uses", "JSON/HTTPS")
+    Rel(spa, email_microservice, "Uses", "JSON/HTTPS")
+    Rel(datingapp, datingapp_db, "Uses","SQLite driver")
+    Rel(email_microservice, email_microservice_db, "Uses","Redis driver")
+    Rel(datingapp, email_microservice, "Uses", "Queue", $tags = "async")
+    Rel(email_microservice, datingapp, "Uses", "Queue", $tags = "async")
+}
+
+Rel(digital_wallet, collector, "Uses", "gRPC/HTTP")
+Rel(collector, zipkin, "Uses", "HTTP")
+
+@enduml

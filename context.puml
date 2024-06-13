@@ -1,0 +1,15 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title "DatingApp"
+
+Person(client, "DatingApp client", "DatingApp client")
+
+System(datingapp, "DatingApp", "DatingApp")
+
+System_Ext(collector, "OTEL", "OpenTelemetry Collector")
+
+Rel(client, datingapp, "Uses","HTTPS")
+Rel(datingapp, collector, "Uses","HTTPS")
+
+@enduml
